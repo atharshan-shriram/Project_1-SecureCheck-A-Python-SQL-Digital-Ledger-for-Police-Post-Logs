@@ -58,7 +58,6 @@ st.title("📈Advance Insigths")
 
 selected_query = st.selectbox("Select your query",[
     "Top 10 Drugs Related Vehicles",
-    "Most Frequently Searched Vehicles",
     "Highest Arrested Age Group",
     "Stops Count Based on Gender in each Country",
     "Highest Search Rate Based on Race and Gender",
@@ -81,7 +80,6 @@ selected_query = st.selectbox("Select your query",[
 
 mapping_query = {
     "Top 10 Drugs Related Vehicles":"SELECT vehicle_number FROM traffic_data Where drugs_related_stop = true LIMIT 10;",
-    "Most Frequently Searched Vehicles":"SELECT vehicle_number FROM traffic_data Where drugs_related_stop = true LIMIT 10;",
     "Highest Arrested Age Group":"SELECT CASE WHEN driver_age < 18 THEN 'Under 18' WHEN driver_age BETWEEN 18 AND 25 THEN '18-25' WHEN driver_age BETWEEN 26 AND 35 THEN '26-35' WHEN driver_age BETWEEN 36 AND 50 THEN '36-50' WHEN driver_age BETWEEN 51 AND 65 THEN '51-65' ELSE '65+' END AS age_group, COUNT(*) FILTER (WHERE is_arrested = true) AS arrest_count, ROUND(100.0 * COUNT(*) FILTER (WHERE is_arrested = true) / COUNT(*), 2) AS arrest_rate_percent FROM traffic_data WHERE driver_age IS NOT NULL GROUP BY age_group ORDER BY arrest_rate_percent DESC LIMIT 1;",
     "Stops Count Based on Gender in each Country":"SELECT country_name, driver_gender, COUNT(*) AS total_stops FROM traffic_data GROUP BY country_name, driver_gender ORDER BY country_name, driver_gender;",
     "Highest Search Rate Based on Race and Gender":"SELECT driver_race, driver_gender, ROUND(100.0 * COUNT(*) FILTER (WHERE search_conducted = true) / COUNT(*), 2) AS search_rate_percent FROM traffic_data GROUP BY driver_race, driver_gender ORDER BY  search_rate_percent DESC LIMIT 1;",
@@ -145,22 +143,6 @@ with st.form("new_log_form"):
             (data["Drugs Related Stop"] == drug_related_stop)
         ]
 
-        # print(f'{filtered_Date}')
-        # print("Driver Age values:", data["Driver Age"].unique())
-        # print("Driver Gender values:", type(data["Driver Gender"].unique()))
-        # print("Search Conducted values:", data["Search Conducted"].unique())
-        # print("Drugs Related Stop values:", data["Drugs Related Stop"].unique())
-        # print("Stop Duration:", data["Stop Duration"].unique())
-
-        # print("Inputs =>")
-        # print("driver_age:", driver_age)
-        # print("driver_gender:", driver_gender)
-        # print("search_conducted:", type (search_conducted))
-        # print("drug_related_stop:", drug_related_stop)
-        # print("Stop Outcome with mode + 0:", filtered_Date["Stop Outcome"].mode()[0])
-        # print("Stop Outcome with mode only:", filtered_Date["Stop Outcome"].mode())
-        # print("Stop Outcome without mode:", filtered_Date["Stop Outcome"])
-
 
         if not filtered_Date.empty:
             print('--- coming here =---')
@@ -175,6 +157,7 @@ with st.form("new_log_form"):
         vehicle_text = f"and Vehicle Number is {vehicle_number}" if vehicle_number else ""
         country_text = f"in {country_name}" if country_name else ""
 
+
         st.markdown(f"""
         **PREDICTION SUMMARY**
         
@@ -182,7 +165,7 @@ with st.form("new_log_form"):
 
         -- **⚠️Predicted Stop Outcome** : {predicted_outcome}
 
-        🚗 A {driver_age}-year-old {driver_gender.lower()} driver {country_text} was stopped for {predicted_violation.lower()} at 2:30 PM.
+        🚗 A {driver_age}-year-old {driver_gender.lower()} driver {country_text} was stopped for {predicted_violation.lower()} at {stop_time}.
         {search_text} and the stop {drug_text}.
         The stop lasted {stop_duration} {vehicle_text}.
 """)
